@@ -248,11 +248,21 @@ public class Programa {
 
                             c.imprimirCitas(pendientes);
                             if (!pendientes.isEmpty()) {
+
                                 int citaACambiar = Integer.valueOf(c.preguntar("Que cita desea cambiar de estado"));
-                                pendientes.get(citaACambiar - 1).setEstado(Estado.ATENDIDO);
-                                gestor.actualizarCita(pendientes.get(citaACambiar - 1), c.preguntar("Tratamiento"), c.preguntar("Diagnostico"),
-                                        Float.valueOf(c.preguntar("Precio")));
-                                gestor.setCitas(pendientes);
+
+                                int opcion = c.indices("ATENDIDO, CANCELADO");
+
+                                if (opcion == 1) {
+                                    pendientes.get(citaACambiar - 1).setEstado(Estado.ATENDIDO);
+                                    gestor.actualizarCita(pendientes.get(citaACambiar - 1), c.preguntar("Tratamiento"), c.preguntar("Diagnostico"),
+                                            Float.valueOf(c.preguntar("Precio")));
+                                    gestor.setCitas(pendientes);
+                                } else {
+                                    pendientes.get(citaACambiar - 1).setEstado(Estado.CANCELADO);
+                                    System.out.println("La cita se a cancelado.");
+                                }
+
                             }
 
                             break;

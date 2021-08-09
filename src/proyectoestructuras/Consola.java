@@ -71,6 +71,28 @@ public class Consola {
         return op;
     }
 
+        public int indices(String opciones) {
+
+        int op = 0;
+        int numOpciones = opciones.split(",").length;
+        int j = 0;
+        System.out.println("");
+        do {
+            for (String opcion : opciones.split(",")) {
+                j++;
+                System.out.printf("%45d%s%s\n", j, ".", opcion);
+            }
+
+            System.out.printf("\n%53s", "Opcion = ");
+            op = Integer.valueOf(sc.nextLine());
+            if (op < 1 || op > numOpciones + 1) {
+                System.out.printf("\n%72s\n", "ERROR: Solo los indices mostrados");
+                j = 0;
+            }
+        } while (op < 1 || op > numOpciones + 1);
+        return op;
+    }
+        
     public void listarDoctor(ArrayList<Doctor> lista) {
         System.out.printf("\n%s%30s%30s%30s%30s\n", "Nombre", "Cedula", "Cargo", "Especialidad",
                 "Teléfono");
@@ -90,6 +112,7 @@ public class Consola {
     }
 
     public void listarPaciente(ArrayList<Paciente> lista) {
+ 
 
         System.out.printf("\n%s%30s%30s\n", "Nombre", "Cedula", "Teléfono");
         int j = 1;
