@@ -298,13 +298,18 @@ public class GestorClinica {
     }
 
     public void actualizarCita(Cita cita, String tratamiento, String diagnostico,
-            float precio) throws FileNotFoundException {
+            float precio, Estado estado) throws FileNotFoundException {
         cita.setTratamiento(tratamiento);
         cita.setDiagnostico(diagnostico);
         cita.setPrecio(precio);
+        cita.setEstado(estado);
         p.guardarCitas(citas);
     }
 
+     public void actualizarCita(Cita cita, Estado estado) throws FileNotFoundException {
+        cita.setEstado(estado);
+        p.guardarCitas(citas);
+    }
     public ArrayList<Doctor> doctoresDisponibles(String especialidadSeleccionada, Date fecha, int horaSeleccionada) {
         ArrayList<Doctor> doctoresDisponibles = new ArrayList<>();
 
@@ -339,7 +344,7 @@ public class GestorClinica {
 
         Paciente paciente = this.paciente(cedulaPac);
 
-        Cita cita = new Cita(fecha, paciente, doctor, hora);
+        Cita cita = new Cita(fecha, paciente, doctor, hora, Estado.PENDIENTE);
 
         citas.add(cita);
         paciente.agregarCita(cita);

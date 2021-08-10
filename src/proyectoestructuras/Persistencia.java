@@ -235,8 +235,22 @@ public class Persistencia {
 
                 Doctor doctor = buscarDoctor(doctores, cedulaDoctor);
                 Paciente paciente = buscarPaciente(pacientes, cedulaPaciente);
+                
+                Estado estado;
+                
+                if (datosCita[4].equals("PENDIENTE")) {
+                    
+                     estado = Estado.PENDIENTE;
+                }else if(datosCita[4].equals("ATENDIDO")){
+                 
+                    estado = Estado.ATENDIDO;
+                }else{
+                
+                    estado = Estado.CANCELADO;
+                
+                }
 
-                Cita cita = new Cita(fecha, paciente, doctor, horaCita);
+                Cita cita = new Cita(fecha, paciente, doctor, horaCita,estado);
                 
                 
                 paciente.agregarCita(cita);
@@ -275,8 +289,10 @@ public class Persistencia {
                 String cedulaDoctor = citaGuardar.getDoctor().getCedulaRuc();
 
                 String hora = String.valueOf(citaGuardar.getHora());
+                
+                Estado estado = citaGuardar.getEstado();
 
-                pw.println(fechaCitaString + "," + cedulaPaciente + "," + cedulaDoctor + "," + hora);
+                pw.println(fechaCitaString + "," + cedulaPaciente + "," + cedulaDoctor + "," + hora + "," + estado);
 
             }
 

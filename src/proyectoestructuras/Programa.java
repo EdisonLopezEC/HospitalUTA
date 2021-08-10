@@ -254,13 +254,15 @@ public class Programa {
                                 int opcion = c.indices("ATENDIDO, CANCELADO");
 
                                 if (opcion == 1) {
-                                    pendientes.get(citaACambiar - 1).setEstado(Estado.ATENDIDO);
+
                                     gestor.actualizarCita(pendientes.get(citaACambiar - 1), c.preguntar("Tratamiento"), c.preguntar("Diagnostico"),
-                                            Float.valueOf(c.preguntar("Precio")));
-                                    gestor.setCitas(pendientes);
+                                            Float.valueOf(c.preguntar("Precio")), Estado.ATENDIDO);
                                 } else {
-                                    pendientes.get(citaACambiar - 1).setEstado(Estado.CANCELADO);
+
+                                    gestor.actualizarCita(pendientes.get(citaACambiar - 1), Estado.CANCELADO);
+
                                     System.out.println("La cita se a cancelado.");
+
                                 }
 
                             }
@@ -291,8 +293,8 @@ public class Programa {
                             );
                             break;
                         case 3:
-                            
-                            System.out.printf("\n%30s %.2f", "Los ingresos del hospital son de: " , gestor.ingresosHospital());
+
+                            System.out.printf("\n%30s %.2f", "Los ingresos del hospital son de: ", gestor.ingresosHospital());
 
                             break;
 

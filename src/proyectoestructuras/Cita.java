@@ -28,12 +28,12 @@ public class Cita {
     private float precio;
     private Estado estado;
 
-    Cita(Date fecha, Paciente paciente, Doctor doctor, int hora) {
+    Cita(Date fecha, Paciente paciente, Doctor doctor, int hora, Estado estado) {
         this.fecha = fecha;
         this.hora = hora;
         this.doctor = doctor;
         this.paciente = paciente;
-        this.estado = Estado.PENDIENTE;
+        this.estado = estado;
     }
 
     public Estado getEstado() {
