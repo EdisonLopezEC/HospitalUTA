@@ -241,9 +241,6 @@ public class GestorClinica {
 //         fechaActual.getHours();
 //         
 //    }
-
-
-
     public ArrayList<Doctor> getDoctores() {
         return doctores;
     }
@@ -379,6 +376,26 @@ public class GestorClinica {
         }
 
         return null;
+
+    }
+
+    public double ingresosHospital() {
+
+        double aux = 0;
+        double totalIngresos = 0;
+        for (int i = 0; i < citas.size(); i++) {
+
+            Cita cita = citas.get(i);
+
+            if (cita.getEstado().equals(Estado.ATENDIDO)) {
+                aux = cita.getPrecio();
+
+                totalIngresos = aux++;
+            }
+
+        }
+
+        return totalIngresos;
 
     }
 

@@ -291,6 +291,8 @@ public class Programa {
                             );
                             break;
                         case 3:
+                            
+                            System.out.printf("\n%30s %.2f", "Los ingresos del hospital son de: " , gestor.ingresosHospital());
 
                             break;
 
