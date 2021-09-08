@@ -71,7 +71,7 @@ public class Consola {
         return op;
     }
 
-        public int indices(String opciones) {
+    public int indices(String opciones) {
 
         int op = 0;
         int numOpciones = opciones.split(",").length;
@@ -92,9 +92,9 @@ public class Consola {
         } while (op < 1 || op > numOpciones + 1);
         return op;
     }
-        
+
     public void listarDoctor(ArrayList<Doctor> lista) {
-        System.out.printf("\n%s%30s%30s%30s%30s\n", "Nombre", "Cedula", "Cargo", "Especialidad",
+        System.out.printf("\n%s%20s%25s%25s%25s%25s\n", "ID", "Nombre", "Cedula", "Cargo", "Especialidad",
                 "Teléfono");
         int j = 1;
         if (lista.isEmpty()) {
@@ -102,17 +102,18 @@ public class Consola {
             return;
         }
         for (Doctor d : lista) {
-            System.out.printf("%d%s %24s%30s%30s%30s\n", j, ".-" + d.getNombApell(),
+            System.out.printf("%d%s%20s%25s%25s%25s%25s\n",
+                    d.getId(), ".-",
+                    d.getNombApell(),
                     d.getCedulaRuc(),
-                    d.getCargo(),
-                    d.getEspecialidad(),
+                    d.getCargo().getNombre(),
+                    d.getEspecialidad().getNombre(),
                     d.getTelefono());
             j++;
         }
     }
 
     public void listarPaciente(ArrayList<Paciente> lista) {
- 
 
         System.out.printf("\n%s%30s%30s\n", "Nombre", "Cedula", "Teléfono");
         int j = 1;
@@ -145,6 +146,9 @@ public class Consola {
 
     }
 
+    public void mostrarDatos(Usuario d){
+        System.out.println(d.toString());
+    }
     public void mostrarDatos(int op, ArrayList d) {
         System.out.println(d.get(op).toString());
     }
@@ -188,7 +192,6 @@ public class Consola {
             String fechaString = simpleDateFormat.format(fecha);
             Paciente paciente = citaImprimir.getPaciente();
             Doctor doctor = citaImprimir.getDoctor();
-            Float costo = citaImprimir.getPrecio();
 
             System.out.printf("%s%s\n", "Cita del: ", fechaString + " Horario: " + citaImprimir.getHora() + " - " + (citaImprimir.getHora() + 1));
 
@@ -228,6 +231,20 @@ public class Consola {
         return respuesta;
     }
 
+    public void imprimirEspecialidaddes(ArrayList<Especialidad> especialidades) {
+        System.out.printf("\n%50s%25s\n", "ID", "Especialidad");
+        for (Especialidad d : especialidades) {
+            System.out.printf("%50s%25s\n", d.getId(), d.getNombre());
+        }
+    }
+
+    public void imprimirCargos(ArrayList<Cargo> cargos) {
+        System.out.printf("\n%50s%25s\n", "ID", "Cargos");
+        for (Cargo d : cargos) {
+            System.out.printf("%50s%25s\n", d.getId(), d.getNombre());
+        }
+    }
+
     public void imprimirLista(ArrayList lista) {
         int j = 1;
         if (lista.isEmpty()) {
@@ -258,4 +275,5 @@ public class Consola {
         return horaINicio + in;
 
     }
+   
 }

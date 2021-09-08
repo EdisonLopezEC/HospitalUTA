@@ -11,8 +11,8 @@ package proyectoestructuras;
  */
 public class Enfermera extends Usuario{
     
-    public Enfermera(String cedulaRuc, String nombApell, String direccion, String telefono) {
-        super(cedulaRuc, nombApell, direccion, telefono);
+    public Enfermera(int id, String cedulaRuc, String nombApell, String direccion, String telefono) {
+        super(id, cedulaRuc, nombApell, direccion, telefono);
     }
     
 }

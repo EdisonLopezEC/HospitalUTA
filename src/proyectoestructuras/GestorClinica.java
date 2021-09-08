@@ -6,6 +6,7 @@
 package proyectoestructuras;
 
 import java.io.FileNotFoundException;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,6 +18,7 @@ import java.util.Date;
 public class GestorClinica {
 
     Consola c = new Consola();
+    BaseDeDatos db = new BaseDeDatos();
     private int apertura = 8;
     private int cierre = 17;
 
@@ -26,98 +28,109 @@ public class GestorClinica {
     ArrayList<Paciente> pacientes = new ArrayList<>();
     ArrayList<Enfermera> enfermeras = new ArrayList<>();
     ArrayList<Cita> citas = new ArrayList<>();
+    ArrayList<Cargo> cargos = db.devolverCargo();
+    ArrayList<Especialidad> especialidades = db.devolverEspecialidades();
 
-    public GestorClinica() throws FileNotFoundException, ParseException {
+    public GestorClinica() throws FileNotFoundException, ParseException, SQLException {
 
         Persistencia p = new Persistencia();
-        doctores = p.leerDoctores();
-        enfermeras = p.leerEnfermeras();
-        pacientes = p.leerPacientes();
-        citas = p.leerCitas(doctores, pacientes);
 
+//        doctores = p.leerDoctores();
+//        enfermeras = p.leerEnfermeras();
+//        pacientes = p.leerPacientes();
+//        citas = p.leerCitas(doctores, pacientes);
     }
 
     public void crearPaciente(String cedula, String nombre, String direccion,
             String telefono) {
-        pacientes.add(new Paciente(cedula, nombre, direccion, telefono));
+        pacientes.add(new Paciente(0, cedula, nombre, direccion, telefono));
 
-        p.guardarPacinetes(pacientes);
-
+//        p.guardarPacinetes(pacientes);
     }
 
     public void crearDoctor(String cedula, String nombre, String direccion,
-            String telefono, String cargo, String especialidad) {
-        doctores.add(new Doctor(cedula, nombre, direccion,
-                telefono, cargo, especialidad));
-        p.guardarDoctores(doctores);
+            String telefono, int cargoID, int especialidadID) {
+        db.insertarDoctor(new Doctor(0, cedula, nombre, direccion,
+                telefono,
+                cargos.stream().filter(p -> p.getId() == cargoID)
+                        .findFirst().get(),
+                especialidades.stream().
+                        filter(p -> p.getId() == especialidadID)
+                        .findFirst().get()));
     }
 
     public void crearEnfermera(String cedula, String nombre, String direccion,
             String telefono) {
-        enfermeras.add(new Enfermera(cedula, nombre, direccion, telefono));
-        p.guardarEnfermeras(enfermeras);
+        enfermeras.add(new Enfermera(0, cedula, nombre, direccion, telefono));
+//        p.guardarEnfermeras(enfermeras);
     }
 
-    public void actualizarDatosDoctor(int atributo, int op) {
+    public void actualizarDatosDoctor(int atributo, Doctor doc) {
         switch (atributo) {
             case 1:
                 String nombre = c.preguntar("Ingrese el nuevo nombre");
-                doctores.get(op).setNombApell(nombre);
-                p.guardarDoctores(doctores);
+                doc.setNombApell(nombre);
+                db.actualizarDoctor(doc);
+
+//                p.guardarDoctores(doctores);
                 break;
             case 2:
                 String cedula = c.preguntar("Ingrese la nueva cedula");
-                doctores.get(op).setCedulaRuc(cedula);
-                p.guardarDoctores(doctores);
+                doc.setCedulaRuc(cedula);
+                db.actualizarDoctor(doc);
                 break;
             case 3:
                 String direc = c.preguntar("Ingrese la nueva dirección");
-                doctores.get(op).setDireccion(direc);
-                p.guardarDoctores(doctores);
+                doc.setDireccion(direc);
+                db.actualizarDoctor(doc);
 
                 break;
             case 4:
                 String tel = c.preguntar("Ingrese el nuevo teléfono");
-                doctores.get(op).setTelefono(tel);
-                p.guardarDoctores(doctores);
+                doc.setTelefono(tel);
+                db.actualizarDoctor(doc);
                 break;
             case 5:
-                String cargo = c.preguntar("Ingrese el nuevo cargo");
-                doctores.get(op).setCargo(cargo);
-                p.guardarDoctores(doctores);
+                int cargo = Integer.valueOf(c.preguntar("Ingrese el nuevo cargo"));
+                doc.setCargo(cargos.stream().filter(p -> p.getId() == cargo).findFirst().get());
+                db.actualizarDoctor(doc);
                 break;
             case 6:
-                String especialidad = c.preguntar("Ingresar la nuevo especialidad");
-                doctores.get(op).setEspecialidad(especialidad);
-                p.guardarDoctores(doctores);
+                int especialidad = Integer.valueOf(c.preguntar("Ingresar la nuevo especialidad"));
+                doc.setEspecialidad(especialidades.stream().filter(p -> p.getId() == especialidad).findFirst().get());
+                db.actualizarDoctor(doc);
                 break;
         }
     }
 
-    public void actualizarDatosPaciente(int atributo, int op) {
+    public void actualizarDatosPaciente(int atributo, Paciente pac) {
         switch (atributo) {
             case 1:
                 String nombre = c.preguntar("Ingrese el nuevo nombre");
-                pacientes.get(op).setNombApell(nombre);
-                p.guardarPacinetes(pacientes);
+                pac.setNombApell(nombre);
+                db.actualizarPaciente(pac);
                 break;
             case 2:
                 String cedula = c.preguntar("Ingrese la nueva cedula");
-                pacientes.get(op).setCedulaRuc(cedula);
-                p.guardarPacinetes(pacientes);
+                pac.setCedulaRuc(cedula);
+                db.actualizarPaciente(pac);
+
                 break;
             case 3:
                 String direc = c.preguntar("Ingrese la nueva dirección");
-                pacientes.get(op).setCedulaRuc(direc);
-                p.guardarPacinetes(pacientes);
+                pac.setDireccion(direc);
+                db.actualizarPaciente(pac);
+
                 break;
             case 4:
                 String tel = c.preguntar("Ingrese el nuevo teléfono");
-                pacientes.get(op).setTelefono(tel);
-                p.guardarPacinetes(pacientes);
+                pac.setTelefono(tel);
+                db.actualizarPaciente(pac);
                 break;
         }
-        c.mostrarDatos(op, pacientes);
+        
+        System.out.println("-----||-----");
+        c.listarPaciente(pacientes);
     }
 
     public void actualizarDatosEnfermera(int atributo, int op) {
@@ -126,23 +139,23 @@ public class GestorClinica {
             case 1:
                 String nombre = c.preguntar("Ingrese el nuevo nombre");
                 enfermeras.get(op).setNombApell(nombre);
-                p.guardarEnfermeras(enfermeras);
+//                p.guardarEnfermeras(enfermeras);
                 break;
             case 2:
                 String cedula = c.preguntar("Ingrese la nueva cedula");
                 enfermeras.get(op).setCedulaRuc(cedula);
-                p.guardarEnfermeras(enfermeras);
+//                p.guardarEnfermeras(enfermeras);
 
                 break;
             case 3:
                 String direc = c.preguntar("Ingrese la nueva dirección");
                 enfermeras.get(op).setCedulaRuc(direc);
-                p.guardarEnfermeras(enfermeras);
+//                p.guardarEnfermeras(enfermeras);
                 break;
             case 4:
                 String tel = c.preguntar("Ingrese el nuevo teléfono");
                 enfermeras.get(op).setTelefono(tel);
-                p.guardarEnfermeras(enfermeras);
+//                p.guardarEnfermeras(enfermeras);
                 break;
         }
         c.mostrarDatos(op, enfermeras);
@@ -169,31 +182,29 @@ public class GestorClinica {
 
     }
 
-    public ArrayList doctoresPorEspecialidad(String especialidad) {
-        ArrayList<Doctor> doctoresEspecialidad = new ArrayList();
-        for (Doctor d : doctores) {
-            if (d.getEspecialidad().equals(especialidad)) {
-                doctoresEspecialidad.add(d);
-            }
-        }
-        return doctoresEspecialidad;
-    }
-
-    public ArrayList especialidadesDelHospital() {
-
-        if (doctores.isEmpty()) {
-            return null;
-        }
-        ArrayList<String> especialidades = new ArrayList();
-        especialidades.add(doctores.get(0).getEspecialidad());
-        for (Doctor doctor : this.doctores) {
-            if (!especialidades.contains(doctor.getEspecialidad())) {
-                especialidades.add(doctor.getEspecialidad());
-            }
-        }
-        return especialidades;
-    }
-
+//    public ArrayList doctoresPorEspecialidad(int especialidad) {
+//        ArrayList<Doctor> doctoresEspecialidad = new ArrayList();
+//        for (Doctor d : doctores) {
+//            if (d.getEspecialidad() == especialidad) {
+//                doctoresEspecialidad.add(d);
+//            }
+//        }
+//        return doctoresEspecialidad;
+//    }
+//    public ArrayList especialidadesDelHospital() {
+//
+//        if (doctores.isEmpty()) {
+//            return null;
+//        }
+//        ArrayList<String> especialidades = new ArrayList();
+//        especialidades.add(doctores.get(0).getEspecialidad());
+//        for (Doctor doctor : this.doctores) {
+//            if (!especialidades.contains(doctor.getEspecialidad())) {
+//                especialidades.add(doctor.getEspecialidad());
+//            }
+//        }
+//        return especialidades;
+//    }
     public boolean verificarSiPacienteExiste(String cedula) {
         for (Paciente paciente : pacientes) {
             if (paciente.getCedulaRuc().equals(cedula)) {
@@ -213,7 +224,6 @@ public class GestorClinica {
         return citasEstado;
     }
 
-    ////////////
     public ArrayList filtrarDoctor(String cedula, Estado estado) {
 
         Doctor doctor = doctor(cedula);
@@ -236,11 +246,6 @@ public class GestorClinica {
         return citasFiltradas;
     }
 
-//    public int horaSeleccionada(){
-//         Date fechaActual = new Date(System.currentTimeMillis());
-//         fechaActual.getHours();
-//         
-//    }
     public ArrayList<Doctor> getDoctores() {
         return doctores;
     }
@@ -303,17 +308,18 @@ public class GestorClinica {
         cita.setDiagnostico(diagnostico);
         cita.setPrecio(precio);
         cita.setEstado(estado);
-        p.guardarCitas(citas);
+//        p.guardarCitas(citas);
     }
 
-     public void actualizarCita(Cita cita, Estado estado) throws FileNotFoundException {
+    public void actualizarCita(Cita cita, Estado estado) throws FileNotFoundException {
         cita.setEstado(estado);
-        p.guardarCitas(citas);
+//        p.guardarCitas(citas);
     }
+
     public ArrayList<Doctor> doctoresDisponibles(String especialidadSeleccionada, Date fecha, int horaSeleccionada) {
         ArrayList<Doctor> doctoresDisponibles = new ArrayList<>();
 
-        for (Doctor doctor : doctores) {
+        for (Doctor doctor : this.doctores) {
             if (especialidadSeleccionada.equals(doctor.getEspecialidad()) && doctorDisponible(doctor, fecha, horaSeleccionada)) {
                 doctoresDisponibles.add(doctor);
             }
@@ -341,15 +347,12 @@ public class GestorClinica {
     public void agendar(String cedulaDoc, String cedulaPac, Date fecha, int hora) throws FileNotFoundException {
 
         Doctor doctor = this.doctor(cedulaDoc);
-
         Paciente paciente = this.paciente(cedulaPac);
-
         Cita cita = new Cita(fecha, paciente, doctor, hora, Estado.PENDIENTE);
-
         citas.add(cita);
         paciente.agregarCita(cita);
         doctor.agregarCita(cita);
-        p.guardarCitas(citas);
+//        p.guardarCitas(citas);
     }
 
     public Paciente paciente(String cedula) {
@@ -386,22 +389,14 @@ public class GestorClinica {
 
     public double ingresosHospital() {
 
-        double aux = 0;
         double totalIngresos = 0;
-        for (int i = 0; i < citas.size(); i++) {
-
-            Cita cita = citas.get(i);
-
+        for (int i = 0; i < this.citas.size(); i++) {
+            Cita cita = this.citas.get(i);
             if (cita.getEstado().equals(Estado.ATENDIDO)) {
-                aux = cita.getPrecio();
-
-                totalIngresos = aux++;
+                totalIngresos += cita.getPrecio();
             }
-
         }
-
         return totalIngresos;
-
     }
 
 }

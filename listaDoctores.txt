@@ -1,2 +1,4 @@
-1804333993,ferchis,12 de niov,01143,Gerentr,Soldadura
-1851077451,Danny,Av. condor,0983079771,Doc,Traumas
+1804333993,Fernando,12 de noviembre,0984824231,Doctor,Cardiologia
+1851077451,Danny,Av. condor,0983079771,Doctor,Traumatologia
+1804407466,Edison,Espejo 10 10,0983529023,Doctor,Pediatra
+0103081196,Maria,Espejo 10,0998877538,Doctor,Odontologia

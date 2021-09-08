@@ -13,12 +13,13 @@ import java.util.ArrayList;
  */
 public class Doctor extends Usuario{
     
-    private String cargo;
-    private String especialidad;
+    private Cargo cargo;
+    private Especialidad especialidad;
     private ArrayList<Cita> citas;
     
-    public Doctor(String cedulaRuc, String nombApell, String direccion, String telefono,String cargo, String especialidad) {
-        super(cedulaRuc, nombApell, direccion, telefono);
+    public Doctor(int id, String cedulaRuc, String nombApell, String direccion,
+            String telefono,Cargo cargo, Especialidad especialidad) {
+        super(id, cedulaRuc, nombApell, direccion, telefono);
         this.cargo = cargo;
         this.especialidad = especialidad;
         this.citas = new ArrayList<>();
@@ -31,26 +32,27 @@ public class Doctor extends Usuario{
     public void setCitas(ArrayList<Cita> citas) {
         this.citas = citas;
     }
-    public String getCargo() {
+    public Cargo getCargo() {
         return cargo;
     }
 
-    public void setCargo(String cargo) {
+    public void setCargo(Cargo cargo) {
         this.cargo = cargo;
     }
 
-    public String getEspecialidad() {
+    public Especialidad getEspecialidad() {
         return especialidad;
     }
 
-    public void setEspecialidad(String especialidad) {
+    public void setEspecialidad(Especialidad especialidad) {
         this.especialidad = especialidad;
     }
     
     
     @Override
     public String toString(){
-        return super.toString() + "\n5. Cargo: " + this.cargo + "\n6. Especialidad: "+this.especialidad;
+        return super.toString() + "\n5. Cargo: " + this.cargo.getNombre() + "\n6"
+                + ". Especialidad: "+this.especialidad.getNombre();
     }
      public void agregarCita(Cita cita){
     

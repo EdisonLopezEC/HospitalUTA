@@ -15,8 +15,8 @@ public class Paciente extends Usuario{
     
     private ArrayList<Cita> citas;
     
-    public Paciente(String cedulaRuc, String nombApell, String direccion, String telefono) {
-        super(cedulaRuc, nombApell, direccion, telefono);
+    public Paciente(int id, String cedulaRuc, String nombApell, String direccion, String telefono) {
+        super(id, cedulaRuc, nombApell, direccion, telefono);
         
         this.citas = new ArrayList<>();
     }

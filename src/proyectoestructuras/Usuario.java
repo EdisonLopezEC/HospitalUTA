@@ -11,18 +11,29 @@ package proyectoestructuras;
  */
 public abstract class Usuario {
 
+    private int id;
     private String cedulaRuc;
     private String nombApell;
     private String direccion;
     private String telefono;
 
-    public Usuario(String cedulaRuc, String nombApell, String direccion, String telefono) {
+    public Usuario(int id, String cedulaRuc, String nombApell, String direccion, 
+            String telefono) {
+        this.id = id;
         this.cedulaRuc = cedulaRuc;
         this.nombApell = nombApell;
         this.direccion = direccion;
         this.telefono = telefono;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+    
     public String getCedulaRuc() {
         return cedulaRuc;
     }
@@ -58,7 +69,8 @@ public abstract class Usuario {
     @Override
     public String toString(){
         return "1. Nombre:"+ this.nombApell + "\n2. Cedula: "+ this.cedulaRuc
-                +"\n3. Direccion: " + this.direccion + "\n4. Teléfono: "+this.telefono;
+                +"\n3. Direccion: " + this.direccion + "\n4. Teléfono: "
+                +this.telefono;
     }
     
 }

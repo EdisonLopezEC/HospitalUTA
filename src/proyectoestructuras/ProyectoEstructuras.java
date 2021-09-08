@@ -6,6 +6,7 @@
 package proyectoestructuras;
 
 import java.io.FileNotFoundException;
+import java.sql.SQLException;
 import java.text.ParseException;
 
 /**
@@ -17,11 +18,8 @@ public class ProyectoEstructuras {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws ParseException, FileNotFoundException {
+    public static void main(String[] args) throws ParseException, FileNotFoundException, SQLException {
         Programa programa = new Programa();
-    
-
         programa.menuPrincipal();
     }
-
 }

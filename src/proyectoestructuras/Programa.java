@@ -6,6 +6,7 @@
 package proyectoestructuras;
 
 import java.io.FileNotFoundException;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,15 +19,18 @@ public class Programa {
 
     Consola c = new Consola();
     GestorClinica gestor;
-
+    BaseDeDatos db = new BaseDeDatos();
     Validaciones validar = new Validaciones();
+    ArrayList<Doctor> doctores = db.obtenerDoctores();
+    ArrayList<Paciente> pacientes = db.obtenerPacientes();
+    ArrayList<Especialidad> especialidades = db.devolverEspecialidades();
+    ArrayList<Cargo> cargos = db.devolverCargo();
 
-    public Programa() throws FileNotFoundException, ParseException {
-
+    public Programa() throws FileNotFoundException, ParseException, SQLException {
         this.gestor = new GestorClinica();
     }
 
-    public void menuPrincipal() throws ParseException, FileNotFoundException {
+    public void menuPrincipal() throws ParseException, FileNotFoundException, SQLException {
 
         int op;
         System.out.printf("%75s\n\n", "---|||--- G E S T I O N  H O S P I T A L ---|||---");
@@ -43,7 +47,7 @@ public class Programa {
         return fecha1.getDate() == fecha2.getDate() && fecha1.getYear() == fecha2.getYear() && fecha1.getMonth() == fecha2.getMonth();
     }
 
-    public void subMenu(int op) throws ParseException, FileNotFoundException {
+    public void subMenu(int op) throws ParseException, FileNotFoundException, SQLException {
 
         int opc;
 
@@ -54,7 +58,7 @@ public class Programa {
                     opc = c.menu("Listar,Crear,Actualizar");
                     switch (opc) {
                         case 1:
-                            c.listarDoctor(gestor.getDoctores());
+                            c.listarDoctor(db.obtenerDoctores());
                             break;
                         case 2:
                             boolean valida;
@@ -66,25 +70,27 @@ public class Programa {
                                     System.out.println("Cedula no valida");
                                 }
                             } while (!valida);
+                            c.imprimirEspecialidaddes(db.devolverEspecialidades());
+                            int especialidad = Integer.valueOf(
+                                    c.preguntar("Seleccione una Especialidad"));
+//validar que este dentro del rango 
+                            c.imprimirCargos(db.devolverCargo());
+                            int cargo = Integer.valueOf(
+                                    c.preguntar("Seleccione una Cargo"));
                             gestor.crearDoctor(cedula,
                                     c.preguntar("Nombre"),
                                     c.preguntar("Direccion"),
                                     c.preguntar("Teléfono"),
-                                    c.preguntar("Cargo"),
-                                    c.preguntar("Especialidad"));
+                                    cargo,
+                                    especialidad);
                             break;
                         case 3:
-                            ArrayList<Doctor> docs = gestor.getDoctores();
                             int doc;
-
-                            c.listarDoctor(docs);
-                            doc = c.pregutarEntero("Escoja el doctor a editar", 1, docs.size()) - 1;
-
-                            c.mostrarDatos(doc, gestor.getDoctores());
-
-                            gestor.actualizarDatosDoctor(
-                                    c.pregutarEntero("Que dato desea modificar?", 1, 6),
-                                    doc);
+                            c.listarDoctor(db.obtenerDoctores());
+                            doc = c.pregutarEntero("Escoja el doctor a editar", 1, doctores.size());
+                            Doctor d = doctores.stream().filter(p -> p.getId() == doc).findFirst().get();
+                            c.mostrarDatos(d);
+                            gestor.actualizarDatosDoctor(c.pregutarEntero("Que dato desea modificar?", 1, 6), d);
                             break;
                     }
 
@@ -96,15 +102,16 @@ public class Programa {
                     opc = c.menu("Listar,Actualizar,Historia Clinica");
                     switch (opc) {
                         case 1:
-                            c.listarPaciente(gestor.getPacientes());
+                            c.listarPaciente(pacientes);
                             break;
                         case 2:
-                            c.listarPaciente(gestor.getPacientes());
-                            int doc = Integer.valueOf(c.preguntar("Escoja la paciente a editar")) - 1;
-                            c.mostrarDatos(doc, gestor.getPacientes());
+                            c.listarPaciente(pacientes);
+                            int paciente = Integer.valueOf(c.preguntar("Escoja el/la paciente a editar"));
+                            Paciente d = pacientes.stream().filter(p -> p.getId() == paciente).findFirst().get();
+                            c.mostrarDatos(d);
                             gestor.actualizarDatosPaciente(
                                     Integer.valueOf(c.preguntar("Que dato desea modificar?")),
-                                    doc);
+                                    d);
                             break;
 
                         case 3:
@@ -178,20 +185,18 @@ public class Programa {
                             int iniRango;
                             int finRango = horaCierre;
 
-                            ArrayList<String> especialidades = gestor.especialidadesDelHospital();
-
-                            c.imprimirLista(especialidades);
-                            int opcEspecialidad = c.pregutarEntero("Seleccione la especialidad", 1, especialidades.size());
-                            String especialidadSeleccionada = especialidades.get(opcEspecialidad - 1);
-
+//                            ArrayList<String> especialidades = gestor.especialidadesDelHospital();
+//
+//                            c.imprimirLista(especialidades);
+//                            int opcEspecialidad = c.pregutarEntero("Seleccione la especialidad", 1, especialidades.size());
+//                            String especialidadSeleccionada = especialidades.get(opcEspecialidad - 1);
                             Date fecha;
 
                             int horaSeleccionada;
                             do {
                                 fecha = c.preguntarFecha("Ingrese la fecha");
 
-                                c.listarDoctor(gestor.doctoresPorEspecialidad((String) gestor.especialidadesDelHospital().get(opcEspecialidad - 1)));
-
+//                                c.listarDoctor(gestor.doctoresPorEspecialidad((String) gestor.especialidadesDelHospital().get(opcEspecialidad - 1)));
                                 Date fechaActual = new Date();
 
                                 if (mismoDia(fecha, fechaActual)) {
@@ -216,28 +221,26 @@ public class Programa {
 
                             } while (iniRango == -1);
 
-                            ArrayList<Doctor> doctoresDisponibles = gestor.doctoresDisponibles(especialidadSeleccionada, fecha, horaSeleccionada);
-
+//                            ArrayList<Doctor> doctoresDisponibles = gestor.doctoresDisponibles(especialidadSeleccionada, fecha, horaSeleccionada);
                             Doctor doctorSel;
                             int inDocSel;
 
-                            if (doctoresDisponibles.isEmpty()) {
-                                System.out.println("Error: Sin doctores disponibles");
-                            } else {
-
-                                do {
-                                    c.listarDoctor(doctoresDisponibles);
-
-                                    inDocSel = Integer.valueOf(c.preguntar("Indice doctor => "));
-
-                                } while (inDocSel < -1 || inDocSel > doctoresDisponibles.size());
-
-                                doctorSel = doctoresDisponibles.get(inDocSel - 1);
-
-                                gestor.agendar(doctorSel.getCedulaRuc(), cedula, fecha, horaSeleccionada);
-
-                            }
-
+//                            if (doctoresDisponibles.isEmpty()) {
+//                                System.out.println("Error: Sin doctores disponibles");
+//                            } else {
+//
+//                                do {
+//                                    c.listarDoctor(doctoresDisponibles);
+//
+//                                    inDocSel = Integer.valueOf(c.preguntar("Indice doctor => "));
+//
+//                                } while (inDocSel < -1 || inDocSel > doctoresDisponibles.size());
+//
+//                                doctorSel = doctoresDisponibles.get(inDocSel - 1);
+//
+//                                gestor.agendar(doctorSel.getCedulaRuc(), cedula, fecha, horaSeleccionada);
+//
+//                            }
                             break;
 
                         case 2:
@@ -307,10 +310,3 @@ public class Programa {
     }
 
 }
-
-//    public void actualizarCita(Cita cita, String tratamiento, String diagnostico,
-//            float precio) {
-//        cita.setTratamiento(tratamiento);
-//        cita.setDiagnostico(diagnostico);
-//        cita.setPrecio(precio);
-//    }
