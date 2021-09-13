@@ -15,23 +15,16 @@ public class Doctor extends Usuario{
     
     private Cargo cargo;
     private Especialidad especialidad;
-    private ArrayList<Cita> citas;
+//    private ArrayList<Cita> citas;
     
     public Doctor(int id, String cedulaRuc, String nombApell, String direccion,
             String telefono,Cargo cargo, Especialidad especialidad) {
         super(id, cedulaRuc, nombApell, direccion, telefono);
         this.cargo = cargo;
         this.especialidad = especialidad;
-        this.citas = new ArrayList<>();
     }
 
-    public ArrayList<Cita> getCitas() {
-        return citas;
-    }
 
-    public void setCitas(ArrayList<Cita> citas) {
-        this.citas = citas;
-    }
     public Cargo getCargo() {
         return cargo;
     }
@@ -54,9 +47,5 @@ public class Doctor extends Usuario{
         return super.toString() + "\n5. Cargo: " + this.cargo.getNombre() + "\n6"
                 + ". Especialidad: "+this.especialidad.getNombre();
     }
-     public void agregarCita(Cita cita){
-    
-        citas.add(cita);
-    
-    }
+
 }

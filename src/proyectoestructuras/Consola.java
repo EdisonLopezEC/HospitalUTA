@@ -37,12 +37,12 @@ public class Consola {
     public int pregutarEntero(String mensaje, int min, int max) {
         int op;
 
-        do {
+//        do {
             op = pregutarEntero(mensaje);
-            if (op < min || op > max) {
-                System.out.println("Error: Numero entre " + min + " y " + max);
-            }
-        } while (op < min || op > max);
+//            if (op < min || op > max) {
+//                System.out.println("Error: Numero entre " + min + " y " + max);
+//            }
+//        } while (op < min || op > max);
 
         return op;
 
@@ -138,7 +138,7 @@ public class Consola {
             return;
         }
         for (Enfermera d : lista) {
-            System.out.printf("%d%s%s%27s%30s\n", j, ".-", d.getNombApell(),
+            System.out.printf("%d%s%s%27s%30s\n", d.getId(), ".-", d.getNombApell(),
                     d.getCedulaRuc(),
                     d.getTelefono());
             j++;
@@ -183,7 +183,7 @@ public class Consola {
         }
 
         for (int i = 0; i < citas.size(); i++) {
-            System.out.println("\n================= " + (i + 1) + " =================");
+            System.out.println("\n================= " + (citas.get(i).getId()) + " =================");
             Cita citaImprimir = citas.get(i);
 
             Date fecha = citaImprimir.getFecha();

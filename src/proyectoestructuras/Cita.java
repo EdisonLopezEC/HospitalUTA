@@ -12,14 +12,10 @@ import java.util.Date;
  *
  * @author 904ed
  */
-enum Estado {
-    PENDIENTE,
-    CANCELADO,
-    ATENDIDO
-}
 
 public class Cita {
-
+    
+    private int id;
     private Date fecha;
     private int hora;
     private Paciente paciente;
@@ -29,7 +25,8 @@ public class Cita {
     private float precio;
     private Estado estado;
 
-    Cita(Date fecha, Paciente paciente, Doctor doctor, int hora, Estado estado) {
+    Cita(int id, Date fecha, Paciente paciente, Doctor doctor, int hora, Estado estado) {
+        this.id = id;
         this.fecha = fecha;
         this.hora = hora;
         this.doctor = doctor;
@@ -37,6 +34,14 @@ public class Cita {
         this.estado = estado;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+    
     public Estado getEstado() {
         return estado;
     }

@@ -13,27 +13,27 @@ import java.util.ArrayList;
  */
 public class Paciente extends Usuario{
     
-    private ArrayList<Cita> citas;
+//    private ArrayList<Cita> citas;
     
     public Paciente(int id, String cedulaRuc, String nombApell, String direccion, String telefono) {
         super(id, cedulaRuc, nombApell, direccion, telefono);
         
-        this.citas = new ArrayList<>();
+//        this.citas = new ArrayList<>();
     }
 
-    public ArrayList<Cita> getCitas() {
-        return citas;
-    }
-
-    public void setCitas(ArrayList<Cita> citas) {
-        this.citas = citas;
-    }
+//    public ArrayList<Cita> getCitas() {
+//        return citas;
+//    }
+//
+//    public void setCitas(ArrayList<Cita> citas) {
+//        this.citas = citas;
+//    }
+//    
     
-    
-    public void agregarCita(Cita cita){
-    
-        citas.add(cita);
-    
-    }
+//    public void agregarCita(Cita cita){
+//    
+//        citas.add(cita);
+//    
+//    }
     
 }

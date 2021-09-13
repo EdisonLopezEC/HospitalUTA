@@ -115,7 +115,7 @@ public class Programa {
                             break;
 
                         case 3:
-                            c.imprimirHistorial(gestor.historiaClinica(c.preguntar("Cedula")));
+//                            c.imprimirHistorial(gestor.historiaClinica(c.preguntar("Cedula")));
                             break;
                     }
                 } while (opc != 4);
@@ -126,15 +126,16 @@ public class Programa {
                     opc = c.menu("Listar,Actualizar,Crear");
                     switch (opc) {
                         case 1:
-                            c.listarEnfermera(gestor.getEnfermeras());
+                            c.listarEnfermera(db.obtenerEnfermeras());
                             break;
                         case 2:
-                            ArrayList<Enfermera> enf = gestor.getEnfermeras();
+                            ArrayList<Enfermera> enf = db.obtenerEnfermeras();
                             c.listarEnfermera(enf);
-                            int doc = c.pregutarEntero("Escoja la emfermera a editar", 1, enf.size()) - 1;
-                            c.mostrarDatos(doc, enf);
+                            int enfermeraID = c.pregutarEntero("Escoja la enfermera a editar", 1, enf.size());
+                            Enfermera enfermera = enf.stream().filter(p -> p.getId() == enfermeraID).findFirst().get();
+                            c.mostrarDatos(enfermera);
                             int atributo = c.pregutarEntero("Que dato desea modificar?", 1, 4);
-                            gestor.actualizarDatosEnfermera(atributo, doc);
+                            gestor.actualizarDatosEnfermera(atributo, enfermera);
                             break;
                         case 3:
                             boolean valida;
@@ -162,8 +163,10 @@ public class Programa {
                     opc = c.menu("Agendar,Listar Pendientes,Actualizar");
                     switch (opc) {
                         case 1:
+                            
+                            ArrayList<Paciente> pacientes = db.obtenerPacientes();
                             String cedula = c.preguntar("Cedula");
-                            boolean existe = gestor.verificarSiPacienteExiste(cedula);
+                            boolean existe = gestor.verificarSiPacienteExiste(cedula, pacientes);
                             if (!existe) {
                                 boolean valida;
                                 do {
@@ -185,17 +188,19 @@ public class Programa {
                             int iniRango;
                             int finRango = horaCierre;
 
-//                            ArrayList<String> especialidades = gestor.especialidadesDelHospital();
-//
-//                            c.imprimirLista(especialidades);
-//                            int opcEspecialidad = c.pregutarEntero("Seleccione la especialidad", 1, especialidades.size());
-//                            String especialidadSeleccionada = especialidades.get(opcEspecialidad - 1);
+                            ArrayList<Especialidad> especialidades = db.devolverEspecialidades();
+
+                            c.imprimirEspecialidaddes(especialidades);
+                            int espID = c.pregutarEntero("Seleccione la especialidad", 1, especialidades.size());
+                            Especialidad especialidad = especialidades.stream().filter(p -> p.getId() == espID).findFirst().get();
                             Date fecha;
 
                             int horaSeleccionada;
+                            ArrayList<Doctor> doctoresPorEspecialidad = db.doctoresPorEspecialidad(especialidad.getId());
+
                             do {
                                 fecha = c.preguntarFecha("Ingrese la fecha");
-
+                                c.listarDoctor(doctoresPorEspecialidad);
 //                                c.listarDoctor(gestor.doctoresPorEspecialidad((String) gestor.especialidadesDelHospital().get(opcEspecialidad - 1)));
                                 Date fechaActual = new Date();
 
@@ -221,55 +226,52 @@ public class Programa {
 
                             } while (iniRango == -1);
 
-//                            ArrayList<Doctor> doctoresDisponibles = gestor.doctoresDisponibles(especialidadSeleccionada, fecha, horaSeleccionada);
+                            ArrayList<Doctor> doctoresDisponibles = gestor.doctoresDisponibles(doctoresPorEspecialidad, fecha, horaSeleccionada);
                             Doctor doctorSel;
+                            Paciente pacienteSel;
                             int inDocSel;
 
-//                            if (doctoresDisponibles.isEmpty()) {
-//                                System.out.println("Error: Sin doctores disponibles");
-//                            } else {
-//
-//                                do {
-//                                    c.listarDoctor(doctoresDisponibles);
-//
-//                                    inDocSel = Integer.valueOf(c.preguntar("Indice doctor => "));
-//
-//                                } while (inDocSel < -1 || inDocSel > doctoresDisponibles.size());
-//
-//                                doctorSel = doctoresDisponibles.get(inDocSel - 1);
-//
-//                                gestor.agendar(doctorSel.getCedulaRuc(), cedula, fecha, horaSeleccionada);
-//
-//                            }
+                            if (doctoresDisponibles.isEmpty()) {
+                                System.out.println("Error: Sin doctores disponibles");
+                            } else {
+
+                                do {
+                                    c.listarDoctor(doctoresDisponibles);
+
+                                    inDocSel = Integer.valueOf(c.preguntar("Indice doctor => "));
+
+                                } while (inDocSel < -1);
+
+                                final int inDoc = inDocSel;
+
+                                doctorSel = doctoresDisponibles.stream().filter(p -> p.getId() == inDoc).findFirst().get();
+                                pacienteSel = pacientes.stream().filter(p -> p.getCedulaRuc().equals(cedula)).findFirst().get();
+                                gestor.agendar(doctorSel, pacienteSel, fecha, horaSeleccionada);
+                                
+                            }
                             break;
 
                         case 2:
-                            c.imprimirCitas(gestor.citasPorEstado(Estado.PENDIENTE));
+                            
+                            c.imprimirCitas(gestor.citasPorEstado(new Estado(0, "Pendiente")));
                             break;
                         case 3:
-                            ArrayList<Cita> pendientes = gestor.citasPorEstado(Estado.PENDIENTE);
-
+                            ArrayList<Cita> pendientes = gestor.citasPorEstado(new Estado(0, "Pendiente"));
+                            ArrayList<Cita> citas = db.devolverCitas();
+                            ArrayList<Estado> estados = db.obtenerEstados();
                             c.imprimirCitas(pendientes);
                             if (!pendientes.isEmpty()) {
-
                                 int citaACambiar = Integer.valueOf(c.preguntar("Que cita desea cambiar de estado"));
-
                                 int opcion = c.indices("ATENDIDO, CANCELADO");
-
                                 if (opcion == 1) {
-
-                                    gestor.actualizarCita(pendientes.get(citaACambiar - 1), c.preguntar("Tratamiento"), c.preguntar("Diagnostico"),
-                                            Float.valueOf(c.preguntar("Precio")), Estado.ATENDIDO);
+                                    gestor.actualizarCita(citaACambiar, c.preguntar("Tratamiento"), c.preguntar("Diagnostico"),
+                                            Float.valueOf(c.preguntar("Precio")), estados.get(3-1));
                                 } else {
 
-                                    gestor.actualizarCita(pendientes.get(citaACambiar - 1), Estado.CANCELADO);
-
+                                    gestor.actualizarCita(citaACambiar, estados.get(1-1));
                                     System.out.println("La cita se a cancelado.");
-
                                 }
-
-                            }
-
+                           }
                             break;
                     }
                 } while (opc != 4);
@@ -284,21 +286,20 @@ public class Programa {
                             c.imprimirCitas(
                                     gestor.filtrarDoctor(
                                             c.preguntar("Cedula"),
-                                            Estado.ATENDIDO)
-                            );
+                                            new Estado(0, "Atendido")));
+                            
                             break;
 
                         case 2:
                             c.imprimirCitas(
                                     gestor.filtrarDoctor(
                                             c.preguntar("Cedula"),
-                                            Estado.CANCELADO)
+                                            new Estado(0, "Cancelado"))
                             );
                             break;
                         case 3:
 
                             System.out.printf("\n%30s %.2f", "Los ingresos del hospital son de: ", gestor.ingresosHospital());
-
                             break;
 
                     }

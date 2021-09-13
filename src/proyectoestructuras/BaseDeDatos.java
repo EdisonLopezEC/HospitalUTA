@@ -6,12 +6,12 @@
 package proyectoestructuras;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  *
@@ -25,7 +25,7 @@ public class BaseDeDatos {
     PreparedStatement ps;
     ResultSet rs;
     Connection con;
-    ArrayList<Cargo> cargos ;
+    ArrayList<Cargo> cargos;
     ArrayList<Especialidad> especialidades;
 
     public BaseDeDatos() throws SQLException {
@@ -77,6 +77,88 @@ public class BaseDeDatos {
 
     }
 
+    public void insertarCita(Cita d) {
+        java.sql.Date date = new java.sql.Date(0000 - 00 - 00);
+
+        try {
+
+            ps = con.prepareStatement("INSERT INTO citas (id,fecha"
+                    + ",hora,pacientes_id,doctores_id,estado_id) "
+                    + "values (?,?,?,?,?,?)");
+            ps.setString(1, "0");
+            ps.setDate(2, new java.sql.Date(d.getFecha().getTime()));
+            ps.setInt(3, d.getHora());
+            ps.setInt(4, d.getPaciente().getId());
+            ps.setInt(5, d.getDoctor().getId());
+            ps.setInt(6, d.getEstado().getId());
+
+            int res = ps.executeUpdate();
+
+            if (res > 0) {
+                System.out.println("Cita Creada");
+            } else {
+                System.out.println("Hubo un error");
+            }
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    public void insertarPaciente(Paciente d) {
+
+        try {
+
+            ps = con.prepareStatement("INSERT INTO pacientes (id,nombresApell"
+                    + ",direccion,nTelefono,cedula) "
+                    + "values (?,?,?,?,?)");
+            ps.setString(1, "0");
+            ps.setString(2, d.getNombApell());
+            ps.setString(3, d.getDireccion());
+            ps.setString(4, d.getTelefono());
+            ps.setString(5, d.getCedulaRuc());
+
+            int res = ps.executeUpdate();
+
+            if (res > 0) {
+                System.out.println("Paciente Creada/o");
+            } else {
+                System.out.println("Hubo un error");
+            }
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+    }
+
+    public void insertarEnfermera(Enfermera d) {
+
+        try {
+
+            ps = con.prepareStatement("INSERT INTO enfermeras (id,nombresApell"
+                    + ",direccion,nTelefono,cedula) "
+                    + "values (?,?,?,?,?)");
+            ps.setString(1, "0");
+            ps.setString(2, d.getNombApell());
+            ps.setString(3, d.getDireccion());
+            ps.setString(4, d.getTelefono());
+            ps.setString(5, d.getCedulaRuc());
+
+            int res = ps.executeUpdate();
+
+            if (res > 0) {
+                System.out.println("Enfermera Creada/o");
+            } else {
+                System.out.println("Hubo un error");
+            }
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+    }
+
     public void mostrarEspecialidades() throws SQLException {
 
         try {
@@ -93,29 +175,43 @@ public class BaseDeDatos {
         }
     }
 
-    public void listarDoctoresPorEspecialidad(int especialidad) {
+    public ArrayList doctoresPorEspecialidad(int especialidad) {
+
+        ArrayList<Doctor> doctores = new ArrayList<>();
 
         try {
             con = getConection();
             ps = con.prepareStatement("SELECT * FROM doctores WHERE especialidad_id=?"
-                    + "ORDER BY nombre");
+            );
             ps.setString(1, especialidad + "");
 
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                System.out.println(rs.getString("id"));
-                System.out.println(rs.getString("nombresApell"));
-                System.out.println(rs.getString("direccion"));
-                System.out.println(rs.getString("nTelefono"));
-                System.out.println(rs.getString("cedula"));
+                int cargoID = rs.getInt("cargo_id");
+                int especialidadID = rs.getInt("especialidad_id");
+                doctores.add(new Doctor(Integer.valueOf(rs.getString("id")),
+                        rs.getString("nombresApell"),
+                        rs.getString("direccion"),
+                        rs.getString("nTelefono"),
+                        rs.getString("cedula"),
+                        cargos.stream()
+                                .filter(p -> p.getId() == cargoID)
+                                .findFirst().get(),
+                        especialidades.stream()
+                                .filter(p -> p.getId() == especialidadID)
+                                .findFirst().get()));
             } else {
                 System.out.println("No existen medicos disponibles");
             }
 
+            return doctores;
+
         } catch (Exception e) {
             System.out.println(e);
         }
+
+        return doctores;
     }
 
     public void mostrarCargos() {
@@ -146,7 +242,7 @@ public class BaseDeDatos {
             while (rs.next()) {
                 int idCargo = rs.getInt("cargo_id");
                 int idEspecialidad = rs.getInt("especialidad_id");
-               
+
                 Cargo cargo = cargos.stream().filter(p -> p.getId() == idCargo).findFirst().get();
                 Especialidad especialidad = especialidades.stream().filter(p -> p.getId() == idEspecialidad).findFirst().get();
                 doctores.add(new Doctor(Integer.valueOf(rs.getString("id")),
@@ -200,6 +296,33 @@ public class BaseDeDatos {
 
     }
 
+    public ArrayList devolverCitas() throws SQLException {
+
+        ArrayList<Cita> citas = new ArrayList<>();
+        try {
+            ArrayList<Paciente> pacientes = obtenerPacientes();
+            ArrayList<Doctor> doctores = obtenerDoctores();
+            ArrayList<Estado> estados = obtenerEstados();
+            ps = con.prepareStatement("SELECT * FROM citas");
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                int pacID = rs.getInt("pacientes_id");
+                int docID = rs.getInt("doctores_id");
+                int estID = rs.getInt("estado_id");
+                citas.add(new Cita(rs.getInt("id"),
+                        (Date) rs.getDate("fecha"),
+                        pacientes.stream().filter(p -> p.getId() == pacID).findFirst().get(),
+                        doctores.stream().filter(p -> p.getId() == docID).findFirst().get(),
+                        rs.getInt("hora"),
+                        estados.stream().filter(p -> p.getId() == estID).findFirst().get()));
+            }
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return citas;
+    }
+
     public void actualizarDoctor(Doctor d) {
         try {
 
@@ -251,6 +374,31 @@ public class BaseDeDatos {
         }
     }
 
+    public void actualizarEnfermera(Enfermera d) {
+        try {
+
+            ps = con.prepareStatement("UPDATE enfermeras SET  nombresApell=?, direccion=?, nTelefono=? cedula=? WHERE id=? ");
+
+            ps.setString(1, d.getNombApell());
+            ps.setString(2, d.getDireccion());
+            ps.setString(3, d.getTelefono());
+            ps.setString(4, d.getCedulaRuc());
+            ps.setInt(5, d.getId());
+
+            int res = ps.executeUpdate();
+
+            if (res > 0) {
+                System.out.println("Actualizacion Exitos");
+            } else {
+                System.out.println("No se pudo actualizar");
+            }
+
+            System.out.println("Enfermero/a Actualizado");
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
     public ArrayList obtenerPacientes() {
 
         ArrayList<Paciente> pacientes = new ArrayList<>();
@@ -275,8 +423,29 @@ public class BaseDeDatos {
         return pacientes;
 
     }
-    
-    public ArrayList obtenerEnfermeras(){
+
+    public ArrayList obtenerEstados() {
+
+        ArrayList<Estado> estados = new ArrayList<>();
+
+        try {
+            ps = con.prepareStatement("SELECT * FROM estados");
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                estados.add(new Estado(Integer.valueOf(rs.getString("id")),
+                        rs.getString("nombreEstado")));
+            }
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        return estados;
+
+    }
+
+    public ArrayList obtenerEnfermeras() {
         ArrayList<Enfermera> enfermeras = new ArrayList<>();
 
         try {
@@ -299,4 +468,120 @@ public class BaseDeDatos {
         return enfermeras;
     }
 
+    public ArrayList obtenerCitasDeUnPaciente(Paciente d) throws SQLException {
+
+        ArrayList<Cita> citas = new ArrayList<>();
+        ArrayList<Paciente> pacientes = obtenerPacientes();
+        ArrayList<Doctor> doctores = obtenerDoctores();
+        ArrayList<Estado> estados = obtenerEstados();
+
+        try {
+
+            ps = con.prepareStatement("SELECT * FROM citas WHERE pacientes_id=?");
+            ps.setString(1, d.getId() + "");
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int pacienteID = rs.getInt("pacientes_id");
+                int doctorID = rs.getInt("doctores_id");
+                int estadoID = rs.getInt("estado_id");
+
+                citas.add(new Cita((rs.getInt("id")),
+                        rs.getDate("fecha"),
+                        pacientes.stream().filter(p -> p.getId() == pacienteID).findFirst().get(),
+                        doctores.stream().filter(p -> p.getId() == doctorID).findFirst().get(),
+                        rs.getInt("hora"),
+                        estados.stream().filter(p -> p.getId() == estadoID).findFirst().get()
+                )
+                );
+            }
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        return estados;
+
+    }
+
+    public ArrayList obtenerCitasDeUnDoctor(Doctor d) throws SQLException {
+
+        ArrayList<Cita> citas = new ArrayList<>();
+        ArrayList<Paciente> pacientes = obtenerPacientes();
+        ArrayList<Doctor> doctores = obtenerDoctores();
+        ArrayList<Estado> estados = obtenerEstados();
+
+        try {
+
+            ps = con.prepareStatement("SELECT * FROM citas WHERE doctores_id=?");
+            ps.setString(1, d.getId() + "");
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int pacienteID = rs.getInt("pacientes_id");
+                int doctorID = rs.getInt("doctores_id");
+                int estadoID = rs.getInt("estado_id");
+
+                citas.add(new Cita((rs.getInt("id")),
+                        (Date) rs.getDate("fecha"),
+                        pacientes.stream().filter(p -> p.getId() == pacienteID).findFirst().get(),
+                        doctores.stream().filter(p -> p.getId() == doctorID).findFirst().get(),
+                        rs.getInt("hora"),
+                        estados.stream().filter(p -> p.getId() == estadoID).findFirst().get()
+                )
+                );
+            }
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        return citas;
+
+    }
+
+    public void actualizarCita(Cita d, int estado) {
+        try {
+
+            ps = con.prepareStatement("UPDATE citas SET diagnostico=?, tratamiento=?, costo=?, estado_id=? WHERE id=?");
+            ps.setString(1, d.getDiagnostico());
+            ps.setString(2, d.getTratamiento());
+            ps.setFloat(3, d.getPrecio());
+            ps.setInt(4, estado);
+            ps.setInt(5, d.getId());
+
+            int res = ps.executeUpdate();
+
+            if (res > 0) {
+                System.out.println("Actualizacion Exitos");
+            } else {
+                System.out.println("No se pudo actualizar");
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
 }
+
+//try {
+//
+//            ps = con.prepareStatement("UPDATE enfermeras SET  nombresApell=?, direccion=?, nTelefono=? cedula=? WHERE id=? ");
+//
+//            ps.setString(1, d.getNombApell());
+//            ps.setString(2, d.getDireccion());
+//            ps.setString(3, d.getTelefono());
+//            ps.setString(4, d.getCedulaRuc());
+//            ps.setInt(5, d.getId());
+//
+//            int res = ps.executeUpdate();
+//
+//            if (res > 0) {
+//                System.out.println("Actualizacion Exitos");
+//            } else {
+//                System.out.println("No se pudo actualizar");
+//            }
+//
+//            System.out.println("Enfermero/a Actualizado");
+//        } catch (Exception e) {
+//            System.out.println(e);
+//        }
